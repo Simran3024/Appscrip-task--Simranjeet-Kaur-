@@ -2,17 +2,17 @@ import Head from "next/head";
 import Header from "../components/Header/Header";
 import Filter from "../components/Filter/Filter";
 import ProductCard from "../components/ProductCard/ProductCard";
-import styles from "../styles/Home.module.css";
 import Footer from "../components/Footer/Footer";
+import styles from "../styles/Home.module.css";
 
 export default function Home({ products }) {
   return (
     <>
       <Head>
-        <title>Discover Our Products</title>
+        <title>Discover Our Products | Appscrip</title>
         <meta
           name="description"
-          content="Discover our curated collection of lifestyle products."
+          content="Discover our curated collection of lifestyle products with filters and recommendations."
         />
       </Head>
 
@@ -21,11 +21,10 @@ export default function Home({ products }) {
       <main className={styles.container}>
         {/* HERO */}
         <section className={styles.hero}>
-          <h1>DISCOVER OUR PRODUCTS</h1>
+          <h1>Discover Our Products</h1>
           <p>
-            Lorem ipsum dolor sit amet consectetur. Amet est posuere rhoncus
-            scelerisque. Dolor integer scelerisque nibh amet mi ut elementum
-            dolor.
+            Explore a curated selection of lifestyle products crafted for modern
+            living.
           </p>
         </section>
 
@@ -33,12 +32,12 @@ export default function Home({ products }) {
         <section className={styles.plp}>
           {/* TOOLBAR */}
           <div className={styles.toolbar}>
-            <span className={styles.items}>3425 ITEMS</span>
+            <span className={styles.items}>{products.length} ITEMS</span>
             <span className={styles.hide}>FILTER</span>
             <span className={styles.sort}>RECOMMENDED ▾</span>
           </div>
 
-          {/* 🔴 IMPORTANT: FILTER + GRID MUST BE IN SAME ROW */}
+          {/* FILTER + GRID */}
           <div className={styles.plpRow}>
             <Filter />
 
@@ -50,15 +49,35 @@ export default function Home({ products }) {
           </div>
         </section>
       </main>
+
       <Footer />
     </>
   );
 }
 
-/* SSR */
+/* ================= SSR (SAFE FOR VERCEL) ================= */
 export async function getServerSideProps() {
-  const res = await fetch("https://fakestoreapi.com/products");
-  const products = await res.json();
+  let products = [];
+
+  try {
+    const res = await fetch("https://fakestoreapi.com/products", {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("API failed");
+    }
+
+    const contentType = res.headers.get("content-type");
+
+    if (contentType && contentType.includes("application/json")) {
+      products = await res.json();
+    }
+  } catch (error) {
+    console.error("SSR Fetch Error:", error);
+  }
 
   return {
     props: { products },
