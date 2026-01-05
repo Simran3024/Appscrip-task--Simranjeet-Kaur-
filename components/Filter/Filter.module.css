@@ -1,0 +1,31 @@
+.filter {
+  width: 240px;
+  font-size: 12px;
+  color: #444;
+}
+
+.filter h2 {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.block {
+  padding: 12px 0;      /* reduced */
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.block h3 {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.block p {
+  font-size: 11.5px;
+  color: #7a7a7a;
+}
+.filter {
+  width: 240px;
+  flex-shrink: 0; /* 🔥 VERY IMPORTANT */
+}
