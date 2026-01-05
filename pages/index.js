@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Head from "next/head";
 import Header from "../components/Header/Header";
 import Filter from "../components/Filter/Filter";
@@ -5,7 +6,19 @@ import ProductCard from "../components/ProductCard/ProductCard";
 import Footer from "../components/Footer/Footer";
 import styles from "../styles/Home.module.css";
 
-export default function Home({ products }) {
+export default function Home({ initialProducts }) {
+  const [products, setProducts] = useState(initialProducts || []);
+
+  // ✅ CLIENT-SIDE FALLBACK (ALWAYS WORKS)
+  useEffect(() => {
+    if (products.length === 0) {
+      fetch("https://fakestoreapi.com/products")
+        .then((res) => res.json())
+        .then((data) => setProducts(data))
+        .catch((err) => console.error("Client fetch failed", err));
+    }
+  }, []);
+
   return (
     <>
       <Head>
@@ -51,13 +64,23 @@ export default function Home({ products }) {
   );
 }
 
-/* ✅ PRODUCTION-SAFE DATA FETCHING */
+/* ✅ SAFE STATIC FETCH (NO JSON CRASH) */
 export async function getStaticProps() {
-  const res = await fetch("https://fakestoreapi.com/products");
-  const products = await res.json();
+  let initialProducts = [];
+
+  try {
+    const res = await fetch("https://fakestoreapi.com/products");
+    const text = await res.text(); // 👈 IMPORTANT
+
+    if (text.startsWith("[")) {
+      initialProducts = JSON.parse(text);
+    }
+  } catch (e) {
+    console.error("Build fetch failed:", e);
+  }
 
   return {
-    props: { products },
-    revalidate: 3600, // 1 hour
+    props: { initialProducts },
+    revalidate: 3600,
   };
 }
