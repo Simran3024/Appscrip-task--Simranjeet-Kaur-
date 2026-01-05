@@ -55,31 +55,18 @@ export default function Home({ products }) {
   );
 }
 
-/* ================= SSR (SAFE FOR VERCEL) ================= */
-export async function getServerSideProps() {
+export async function getStaticProps() {
   let products = [];
 
   try {
-    const res = await fetch("https://fakestoreapi.com/products", {
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error("API failed");
-    }
-
-    const contentType = res.headers.get("content-type");
-
-    if (contentType && contentType.includes("application/json")) {
-      products = await res.json();
-    }
+    const res = await fetch("https://fakestoreapi.com/products");
+    products = await res.json();
   } catch (error) {
-    console.error("SSR Fetch Error:", error);
+    console.error("Fetch Error:", error);
   }
 
   return {
     props: { products },
+    revalidate: 60, // ISR (still valid for SEO & performance)
   };
 }
